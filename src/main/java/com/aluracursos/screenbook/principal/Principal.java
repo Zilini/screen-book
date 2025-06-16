@@ -1,6 +1,6 @@
 package com.aluracursos.screenbook.principal;
 
-import com.aluracursos.screenbook.Libro;
+import com.aluracursos.screenbook.model.Libro;
 import com.aluracursos.screenbook.model.DatosLibros;
 import com.aluracursos.screenbook.repository.LibroRepository;
 import com.aluracursos.screenbook.service.ConsumoAPI;
@@ -14,6 +14,10 @@ public class Principal {
     private ConsumoAPI consumoAPI = new ConsumoAPI();
     private ConvierteDatos conversor = new ConvierteDatos();
     private LibroRepository repositorio;
+
+    public Principal(LibroRepository repository) {
+        this.repositorio = repository;
+    }
 
     public void mostrarMenu () {
 

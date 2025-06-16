@@ -1,8 +1,14 @@
-package com.aluracursos.screenbook;
+package com.aluracursos.screenbook.model;
 
-import com.aluracursos.screenbook.model.DatosLibros;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "libros")
 public class Libro {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String titulo;
     private String autor;
     private String idiomas;
@@ -22,6 +28,14 @@ public class Libro {
                 ", Autor: " + autor + '\'' +
                 ", Idiomas: " + idiomas + '\'' +
                 ", Descargas: " + descargas;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getTitulo() {
