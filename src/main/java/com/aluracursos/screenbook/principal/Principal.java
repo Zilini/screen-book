@@ -1,22 +1,29 @@
 package com.aluracursos.screenbook.principal;
 
+import com.aluracursos.screenbook.model.Datos;
 import com.aluracursos.screenbook.model.Libro;
 import com.aluracursos.screenbook.model.DatosLibros;
+import com.aluracursos.screenbook.repository.AutorRepository;
 import com.aluracursos.screenbook.repository.LibroRepository;
 import com.aluracursos.screenbook.service.ConsumoAPI;
 import com.aluracursos.screenbook.service.ConvierteDatos;
 
+import java.util.Optional;
 import java.util.Scanner;
 
 public class Principal {
     Scanner teclado = new Scanner(System.in);
-    private static final String URL_BASE = "https://gutendex.com/books/?search=";
+    private static final String URL_BASE = "https://gutendex.com/books/";
     private ConsumoAPI consumoAPI = new ConsumoAPI();
     private ConvierteDatos conversor = new ConvierteDatos();
-    private LibroRepository repositorio;
+    private LibroRepository libroRepository;
+    private AutorRepository autorRepository;
+    private String json;
 
-    public Principal(LibroRepository repository) {
-        this.repositorio = repository;
+
+    public Principal(LibroRepository libroRepository, AutorRepository autorRepository) {
+        this.libroRepository = libroRepository;
+        this.autorRepository = autorRepository;
     }
 
     public void mostrarMenu () {
@@ -53,16 +60,31 @@ public class Principal {
     private DatosLibros getDatosLibros () {
         System.out.println("Escribe el nombre del Libro que quieres buscar: ");
         var nombreLibro = teclado.nextLine();
-        var json = consumoAPI.obtenerDatos(URL_BASE + nombreLibro.toLowerCase().replace(" ", "%20"));
+        json = consumoAPI.obtenerDatos(URL_BASE + "?search=" + nombreLibro.toLowerCase().replace(" ", "%20"));
         System.out.println(json);
-        DatosLibros datos = conversor.obtenerDatos(json, DatosLibros.class);
-        return datos;
+        Datos datos = conversor.obtenerDatos(json, Datos.class);
+
+        if (datos.resultados().isEmpty()) {
+            System.out.println("El libro que intentas buscar, no se encuentra disponible");
+            return null;
+        }
+
+        return datos.resultados().get(0);
     }
 
     private void buscarLibroWeb() {
         DatosLibros datos = getDatosLibros();
-        Libro libro = new Libro(datos);
-        repositorio.save(libro);
+        Optional<Libro> libroGuardado = libroRepository.findByTituloContainsIgnoreCase(datos.titulo());
+        if (libroGuardado.isPresent()) {
+            System.out.println("El libro " + datos.titulo() + " ya está guardado.");
+            System.out.println(libroGuardado.get());
+        } else {
+            Libro libro = new Libro(datos);
+            libroRepository.save(libro);
+            System.out.println("Libro guardado exitosamente.");
+            System.out.println(libro);
+        }
+
         System.out.println(datos);
     }
 

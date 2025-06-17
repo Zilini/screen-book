@@ -14,6 +14,8 @@ public class Libro {
     private String idiomas;
     Double descargas;
 
+    public Libro(){}
+
     public Libro (DatosLibros datosLibros) {
         this.titulo = datosLibros.titulo();
         this.autor = String.valueOf(datosLibros.autor());

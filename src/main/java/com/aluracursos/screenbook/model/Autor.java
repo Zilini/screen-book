@@ -12,6 +12,8 @@ public class Autor {
     private String nombre;
     private String fechaNacimiento;
 
+    public Autor () {}
+
     public Autor (DatosAutor datosAutor) {
         this.nombre = datosAutor.nombre();
         this.fechaNacimiento = datosAutor.fechaNacimiento();
