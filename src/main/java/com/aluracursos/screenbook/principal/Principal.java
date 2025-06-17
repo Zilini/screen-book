@@ -20,7 +20,7 @@ public class Principal {
     private LibroRepository libroRepository;
     private AutorRepository autorRepository;
     private String json;
-    //private List<Libro> libroGuardado;
+    private List<Libro> libro;
 
 
     public Principal(LibroRepository libroRepository, AutorRepository autorRepository) {
@@ -36,6 +36,7 @@ public class Principal {
                 --------------------
                 
                 1 - Buscar Libro.
+                2 - Ver los libros buscados.
                 
                 0 - Salir.
                 
@@ -48,6 +49,9 @@ public class Principal {
             switch (opcion) {
                 case 1:
                     buscarLibroWeb();
+                    break;
+                case 2:
+                    buscarLibrosGuardados();
                     break;
                 case 0:
                     System.out.println("Gracias por visitar ScreenBook.");
@@ -78,11 +82,11 @@ public class Principal {
         if (datos == null) {
             return;
         }
-        List<Libro> libroGuardado = libroRepository.findByTituloContainsIgnoreCase(datos.titulo());
+        libro = libroRepository.findByTituloContainsIgnoreCase(datos.titulo());
 
-        if (!libroGuardado.isEmpty()) {
+        if (!libro.isEmpty()) {
             System.out.println(datos.titulo() + " ya se encuentra registrado.");
-            for (Libro libro : libroGuardado) {
+            for (Libro libro : libro) {
                 System.out.println(libro);
             }
         } else {
@@ -91,6 +95,13 @@ public class Principal {
             System.out.println("El libro " + datos.titulo() + " ha sido guardado.");
             System.out.println(libro);
         }
+    }
+
+    private void buscarLibrosGuardados() {
+        libro = libroRepository.findAll();
+
+        libro.stream()
+                .forEach(System.out::println);
     }
 
 
