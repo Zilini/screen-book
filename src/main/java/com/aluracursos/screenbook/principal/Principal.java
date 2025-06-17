@@ -20,7 +20,7 @@ public class Principal {
     private LibroRepository libroRepository;
     private AutorRepository autorRepository;
     private String json;
-    private List<Libro> libroGuardado;
+    //private List<Libro> libroGuardado;
 
 
     public Principal(LibroRepository libroRepository, AutorRepository autorRepository) {
@@ -63,7 +63,6 @@ public class Principal {
         System.out.println("Escribe el nombre del Libro que quieres buscar: ");
         var nombreLibro = teclado.nextLine();
         json = consumoAPI.obtenerDatos(URL_BASE + "?search=" + nombreLibro.toLowerCase().replace(" ", "%20"));
-        System.out.println(json);
         Datos datos = conversor.obtenerDatos(json, Datos.class);
 
         if (datos.resultados().isEmpty()) {
@@ -79,19 +78,19 @@ public class Principal {
         if (datos == null) {
             return;
         }
-        libroGuardado = libroRepository.findByTituloContainsIgnoreCase(datos.titulo());
-        if (libroGuardado.isEmpty()) {
-            System.out.println("El libro " + datos.titulo() + " ha sido guardado.");
+        List<Libro> libroGuardado = libroRepository.findByTituloContainsIgnoreCase(datos.titulo());
+
+        if (!libroGuardado.isEmpty()) {
+            System.out.println(datos.titulo() + " ya se encuentra registrado.");
             for (Libro libro : libroGuardado) {
                 System.out.println(libro);
             }
         } else {
             Libro libro = new Libro(datos);
             libroRepository.save(libro);
-            System.out.println(datos.titulo() + " ya se encuentra registrado.");
+            System.out.println("El libro " + datos.titulo() + " ha sido guardado.");
             System.out.println(libro);
         }
-        System.out.println(datos);
     }
 
 

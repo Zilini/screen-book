@@ -13,14 +13,22 @@ public class Libro {
     private String titulo;
     private String autor;
     private String idiomas;
-    Double descargas;
+    private Double descargas;
 
     public Libro(){}
 
     public Libro (DatosLibros datosLibros) {
         this.titulo = datosLibros.titulo();
-        this.autor = String.valueOf(datosLibros.autor());
-        this.idiomas = String.valueOf(datosLibros.idiomas());
+        if (datosLibros.autor() != null && !datosLibros.autor().isEmpty()) {
+            this.autor = datosLibros.autor().get(0).nombre();
+        } else {
+            this.autor = "Autor desconocido.";
+        }
+        if (datosLibros.idiomas() != null && !datosLibros.idiomas().isEmpty()) {
+            this.idiomas = datosLibros.idiomas().get(0);
+        } else {
+            this.idiomas = "No se encontró en qué idiomas está disponible este libro.";
+        }
         this.descargas = datosLibros.descargas();
     }
 
@@ -32,7 +40,8 @@ public class Libro {
                 Autor: %s
                 Idioma: %s
                 Descargas: %.0f
-                """.formatted(titulo, autor, idiomas, descargas);
+                -------------------
+                """.formatted(titulo, autor, idiomas, descargas) + "\n";
 
 //                + "------ LIBRO ------" + "\n" +
 //                "Titulo: " + titulo + '\n' +
