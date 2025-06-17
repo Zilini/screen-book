@@ -9,6 +9,7 @@ public class Libro {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(unique = true)
     private String titulo;
     private String autor;
     private String idiomas;
@@ -25,11 +26,19 @@ public class Libro {
 
     @Override
     public String toString() {
-        return
-                "Titulo: " + titulo + '\'' +
-                ", Autor: " + autor + '\'' +
-                ", Idiomas: " + idiomas + '\'' +
-                ", Descargas: " + descargas;
+        return """
+                ------ LIBRO ------
+                Titulo: %s
+                Autor: %s
+                Idioma: %s
+                Descargas: %.0f
+                """.formatted(titulo, autor, idiomas, descargas);
+
+//                + "------ LIBRO ------" + "\n" +
+//                "Titulo: " + titulo + '\n' +
+//                "Autor: " + autor + '\n' +
+//                "Idioma: " + idiomas + '\n' +
+//                "Descargas: " + descargas;
     }
 
     public Long getId() {

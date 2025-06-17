@@ -8,6 +8,7 @@ import com.aluracursos.screenbook.repository.LibroRepository;
 import com.aluracursos.screenbook.service.ConsumoAPI;
 import com.aluracursos.screenbook.service.ConvierteDatos;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -19,6 +20,7 @@ public class Principal {
     private LibroRepository libroRepository;
     private AutorRepository autorRepository;
     private String json;
+    private List<Libro> libroGuardado;
 
 
     public Principal(LibroRepository libroRepository, AutorRepository autorRepository) {
@@ -74,17 +76,21 @@ public class Principal {
 
     private void buscarLibroWeb() {
         DatosLibros datos = getDatosLibros();
-        Optional<Libro> libroGuardado = libroRepository.findByTituloContainsIgnoreCase(datos.titulo());
-        if (libroGuardado.isPresent()) {
-            System.out.println("El libro " + datos.titulo() + " ya está guardado.");
-            System.out.println(libroGuardado.get());
+        if (datos == null) {
+            return;
+        }
+        libroGuardado = libroRepository.findByTituloContainsIgnoreCase(datos.titulo());
+        if (libroGuardado.isEmpty()) {
+            System.out.println("El libro " + datos.titulo() + " ha sido guardado.");
+            for (Libro libro : libroGuardado) {
+                System.out.println(libro);
+            }
         } else {
             Libro libro = new Libro(datos);
             libroRepository.save(libro);
-            System.out.println("Libro guardado exitosamente.");
+            System.out.println(datos.titulo() + " ya se encuentra registrado.");
             System.out.println(libro);
         }
-
         System.out.println(datos);
     }
 
