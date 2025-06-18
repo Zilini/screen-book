@@ -11,7 +11,8 @@ public class Libro {
     private Long id;
     @Column(unique = true)
     private String titulo;
-    private String autor;
+    @ManyToOne
+    private Autor autor;
     private String idiomas;
     private Double descargas;
 
@@ -19,11 +20,11 @@ public class Libro {
 
     public Libro (DatosLibros datosLibros) {
         this.titulo = datosLibros.titulo();
-        if (datosLibros.autor() != null && !datosLibros.autor().isEmpty()) {
-            this.autor = datosLibros.autor().get(0).nombre();
-        } else {
-            this.autor = "Autor desconocido.";
-        }
+//        if (datosLibros.autor() != null && !datosLibros.autor().isEmpty()) {
+//            this.autor = datosLibros.autor().get(0).nombre();
+//        } else {
+//            this.autor = "Autor desconocido.";
+//        }
         if (datosLibros.idiomas() != null && !datosLibros.idiomas().isEmpty()) {
             this.idiomas = datosLibros.idiomas().get(0);
         } else {
@@ -34,6 +35,9 @@ public class Libro {
 
     @Override
     public String toString() {
+        //Se asegura de que el autor no vaya a ser nulo
+        String nombreAutor = (autor != null) ? autor.getNombre() : "Desconocido";
+
         return """
                 ------ LIBRO ------
                 Titulo: %s
@@ -66,11 +70,11 @@ public class Libro {
         this.titulo = titulo;
     }
 
-    public String getAutor() {
+    public Autor getAutor() {
         return autor;
     }
 
-    public void setAutor(String autor) {
+    public void setAutor(Autor autor) {
         this.autor = autor;
     }
 

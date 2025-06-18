@@ -1,5 +1,6 @@
 package com.aluracursos.screenbook.principal;
 
+import com.aluracursos.screenbook.model.Autor;
 import com.aluracursos.screenbook.model.Datos;
 import com.aluracursos.screenbook.model.Libro;
 import com.aluracursos.screenbook.model.DatosLibros;
@@ -21,6 +22,7 @@ public class Principal {
     private AutorRepository autorRepository;
     private String json;
     private List<Libro> libro;
+    private Optional<Autor> autor;
 
 
     public Principal(LibroRepository libroRepository, AutorRepository autorRepository) {
@@ -53,6 +55,8 @@ public class Principal {
                 case 2:
                     buscarLibrosGuardados();
                     break;
+                case 3:
+                    buscarLibrosPorAutor();
                 case 0:
                     System.out.println("Gracias por visitar ScreenBook.");
                     System.out.println("Cerrando aplicación...");
@@ -104,5 +108,13 @@ public class Principal {
                 .forEach(System.out::println);
     }
 
-
+    private void buscarLibrosPorAutor() {
+        System.out.println("Escribe el nombre del autor del que quieres ve sus libros: ");
+        var nombreAutor = teclado.nextLine();
+        autor = autorRepository.findByNombreContainsIgnoreCase(nombreAutor);
+        if (autor.isPresent()) {
+            System.out.println(autor.get());
+            System.out.println();
+        }
+    }
 }
