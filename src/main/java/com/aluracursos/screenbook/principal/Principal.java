@@ -1,9 +1,6 @@
 package com.aluracursos.screenbook.principal;
 
-import com.aluracursos.screenbook.model.Autor;
-import com.aluracursos.screenbook.model.Datos;
-import com.aluracursos.screenbook.model.Libro;
-import com.aluracursos.screenbook.model.DatosLibros;
+import com.aluracursos.screenbook.model.*;
 import com.aluracursos.screenbook.repository.AutorRepository;
 import com.aluracursos.screenbook.repository.LibroRepository;
 import com.aluracursos.screenbook.service.ConsumoAPI;
@@ -23,6 +20,7 @@ public class Principal {
     private String json;
     private List<Libro> libro;
     private Optional<Autor> autor;
+    private DatosAutor datosAutor;
 
 
     public Principal(LibroRepository libroRepository, AutorRepository autorRepository) {
@@ -94,7 +92,28 @@ public class Principal {
                 System.out.println(libro);
             }
         } else {
+            Autor autorDeLibro = null;
+            if (autorDeLibro != null && datos.autor().isEmpty()) {
+                datosAutor = datos.autor().get(0);
+
+                autor = autorRepository.findByNombreContainsIgnoreCase(datosAutor.nombre());
+
+                if (autor.isPresent()) {
+                    autorDeLibro = autor.get();
+                } else {
+                    autorDeLibro = new Autor(datosAutor);
+                    autorRepository.save(autorDeLibro);
+                }
+            } else {
+                System.out.println("No se encontro ninguna información del autor de el libro que buscaste");
+            }
+
             Libro libro = new Libro(datos);
+            if (autorDeLibro != null) {
+                libro.setAutor(autorDeLibro);
+                autorDeLibro.agregarLibro(libro);
+            }
+//
             libroRepository.save(libro);
             System.out.println("El libro " + datos.titulo() + " ha sido guardado.");
             System.out.println(libro);
