@@ -32,8 +32,9 @@ public class Principal {
             var menu = """
                 --------------------
                 
-                1 - Buscar Libro.
+                1 - Buscar libro.
                 2 - Ver los libros buscados.
+                3 - Buscar libros por Autor.
                 
                 0 - Salir.
                 
