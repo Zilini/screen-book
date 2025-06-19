@@ -9,6 +9,7 @@ import com.aluracursos.screenbook.service.ConvierteDatos;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Principal {
     Scanner teclado = new Scanner(System.in);
@@ -80,11 +81,8 @@ public class Principal {
         return datos.resultados().get(0);
     }
 
-    private Datos getDatosAutor () {
-        System.out.println("Escribe el nombre del autor del que quieres ve sus libros: ");
-        var nombreAutor = teclado.nextLine();
+    private Datos getDatosAutor (String nombreAutor) {
         String urlAutor = consumoAPI.obtenerDatos(URL_BASE + "?search=" + nombreAutor.toLowerCase().replace(" ", "%20"));
-
         return obtenerDatos(urlAutor);
     }
 
@@ -112,18 +110,18 @@ public class Principal {
                     autorRepository.save(autorDeLibro);
                 }
             } else {
-                System.out.println("No se encontro ninguna información del autor de el libro que buscaste");
+                System.out.println("No se encontro ninguna información del autor de el libroGuardado que buscaste");
             }
 
-            Libro libro = new Libro(datos);
+            Libro libroGuardado = new Libro(datos);
             if (autorDeLibro != null) {
-                libro.setAutor(autorDeLibro);
-                autorDeLibro.agregarLibro(libro);
+                libroGuardado.setAutor(autorDeLibro);
+                autorDeLibro.agregarLibro(libroGuardado);
             }
 //
-            libroRepository.save(libro);
-            System.out.println("El libro " + datos.titulo() + " ha sido guardado.");
-            System.out.println(libro);
+            libroRepository.save(libroGuardado);
+            System.out.println("El libroGuardado " + datos.titulo() + " ha sido guardado.");
+            System.out.println(libroGuardado);
         }
     }
 
@@ -139,6 +137,37 @@ public class Principal {
     }
 
     private void buscarLibrosPorAutor() {
-        DatosAutor datos = getDatosAutor();
+        System.out.println("Escribe el nombre del autor del que quieres ve sus libros: ");
+        var autorBuscado = teclado.nextLine();
+        Datos datos = getDatosAutor(autorBuscado);
+
+        if (datos.resultados().isEmpty()) {
+            System.out.println("No se encontraron libros disponibles para " + autorBuscado + ".");
+            return;
+        }
+
+        System.out.println("------ Libros encontrados de " + autorBuscado + " ------");
+        List<DatosLibros> librosDelAutor = datos.resultados().stream()
+                .filter(dl -> dl.autor() != null && !dl.autor().isEmpty() && dl.autor().stream().
+                        anyMatch(da -> da.nombre().toLowerCase().contains(autorBuscado.toLowerCase())))
+                .collect(Collectors.toList());
+
+        if (librosDelAutor.isEmpty()) {
+            System.out.println("No se encontraron libros que coincidan con el autor que intentas buscar.");
+            return;
+        }
+
+        for (DatosLibros datosLibros : librosDelAutor) {
+                Libro mostrarLibro = new Libro();
+
+                //Solo se crea un obejto Autor para la visualización del toString no para guardar en este metodo.
+                if (datosLibros.autor() != null && datosLibros.autor().isEmpty()) {
+                    Autor autorTemporal = new Autor(datosLibros.autor().get(0));
+                    mostrarLibro.setAutor(autorTemporal);
+                }
+
+            System.out.println(mostrarLibro);
+        }
+        System.out.println("----------------------------------------------\n");
     }
 }
