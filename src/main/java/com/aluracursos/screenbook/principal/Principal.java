@@ -72,8 +72,8 @@ public class Principal {
     private DatosLibros getDatosLibros () {
         System.out.println("Escribe el nombre del Libro que quieres buscar: ");
         var nombreLibro = teclado.nextLine();
-        String urlLibro = consumoAPI.obtenerDatos(URL_BASE + "?search=" + nombreLibro.toLowerCase().replace(" ", "%20"));
-        Datos datos = obtenerDatos(urlLibro);
+        json = consumoAPI.obtenerDatos(URL_BASE + "?search=" + nombreLibro.toLowerCase().replace(" ", "%20"));
+        Datos datos = conversor.obtenerDatos(json, Datos.class);
 
         if (datos.resultados().isEmpty()) {
             System.out.println("El libro que intentas buscar, no se encuentra disponible");
@@ -83,9 +83,14 @@ public class Principal {
         return datos.resultados().get(0);
     }
 
-    private Datos getDatosAutor (String nombreAutor) {
-        String urlAutor = consumoAPI.obtenerDatos(URL_BASE + "?search=" + nombreAutor.toLowerCase().replace(" ", "%20"));
-        return obtenerDatos(urlAutor);
+    private Datos getDatosAutor () {
+
+
+        if (datosAutor.resultados().isEmpty()) {
+            System.out.println("El autor que intentas, no se encuentra disponible");
+            return null;
+        }
+        return datosAutor;
     }
 
     private void buscarLibroWeb() {
@@ -139,20 +144,20 @@ public class Principal {
     }
 
     private void buscarLibrosPorAutor() {
-        System.out.println("Escribe el nombre del autor del que quieres ve sus libros: ");
-        var autorBuscado = teclado.nextLine();
-        String urlLibro = consumoAPI.obtenerDatos(URL_BASE + "?search=" + autorBuscado.toLowerCase().replace(" ", "%20"));
-        Datos datos = getDatosAutor(urlLibro);
+        System.out.println("Escribe el nombre del autor del que quieres ver los libros");
+        var nombreAutor = teclado.nextLine();
+        json = consumoAPI.obtenerDatos(URL_BASE + "?search=" + nombreAutor.toLowerCase().replace(" ", "%20"));
+        Datos datosAutor = conversor.obtenerDatos(json, Datos.class);
 
-        if (datos.resultados().isEmpty()) {
-            System.out.println("No se encontraron libros disponibles para " + autorBuscado + ".");
+        if (datosAutor.resultados().isEmpty()) {
+            System.out.println("No se encontraron libros para el autor que quieres buscar.");
             return;
         }
 
-        System.out.println("------ Libros encontrados de " + autorBuscado + " ------");
-        List<DatosLibros> librosDelAutor = datos.resultados().stream()
+        System.out.println("------ Libros encontrados de " + nombreAutor + " ------");
+        List<DatosLibros> librosDelAutor = datosAutor.resultados().stream()
                 .filter(dl -> dl.autor() != null && !dl.autor().isEmpty() && dl.autor().stream().
-                        anyMatch(da -> da.nombre().toLowerCase().contains(autorBuscado.toLowerCase())))
+                        anyMatch(da -> da.nombre().toLowerCase().contains(nombreAutor.toLowerCase())))
                 .collect(Collectors.toList());
 
         if (librosDelAutor.isEmpty()) {
