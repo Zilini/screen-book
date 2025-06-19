@@ -83,16 +83,6 @@ public class Principal {
         return datos.resultados().get(0);
     }
 
-    private Datos getDatosAutor () {
-
-
-        if (datosAutor.resultados().isEmpty()) {
-            System.out.println("El autor que intentas, no se encuentra disponible");
-            return null;
-        }
-        return datosAutor;
-    }
-
     private void buscarLibroWeb() {
         DatosLibros datos = getDatosLibros();
         if (datos == null) {
