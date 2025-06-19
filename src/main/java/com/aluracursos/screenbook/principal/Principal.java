@@ -65,6 +65,7 @@ public class Principal {
 
     private Datos obtenerDatos (String url) {
         json = consumoAPI.obtenerDatos(url);
+        System.out.println(json);
         return conversor.obtenerDatos(json, Datos.class);
     }
 
@@ -140,7 +141,8 @@ public class Principal {
     private void buscarLibrosPorAutor() {
         System.out.println("Escribe el nombre del autor del que quieres ve sus libros: ");
         var autorBuscado = teclado.nextLine();
-        Datos datos = getDatosAutor(autorBuscado);
+        String urlLibro = consumoAPI.obtenerDatos(URL_BASE + "?search=" + autorBuscado.toLowerCase().replace(" ", "%20"));
+        Datos datos = getDatosAutor(urlLibro);
 
         if (datos.resultados().isEmpty()) {
             System.out.println("No se encontraron libros disponibles para " + autorBuscado + ".");
