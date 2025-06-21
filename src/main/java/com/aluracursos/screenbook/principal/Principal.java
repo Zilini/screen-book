@@ -64,6 +64,8 @@ public class Principal {
                     break;
                 case 4:
                     buscarAutoresVivosEnAnho();
+                case 5:
+                    buscarLibrosPorIdioma();
                 case 0:
                     System.out.println("Gracias por visitar ScreenBook.");
                     System.out.println("Cerrando aplicación...");
@@ -153,5 +155,9 @@ public class Principal {
             autoresVivos.forEach(System.out::println);
             System.out.println("----------------------------------------\n");
         }
+    }
+
+    private void buscarLibrosPorIdioma() {
+        
     }
 }
