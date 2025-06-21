@@ -60,7 +60,7 @@ public class Principal {
                     buscarLibrosGuardados();
                     break;
                 case 3:
-                    
+                    buscarAutoresGuardados();
                     break;
                 case 0:
                     System.out.println("Gracias por visitar ScreenBook.");
@@ -125,6 +125,18 @@ public class Principal {
 
         libro.stream()
                 .sorted((l1, l2) -> l1.getAutor().getNombre().compareToIgnoreCase(l2.getAutor().getNombre()))
+                .forEach(System.out::println);
+    }
+
+    private void buscarAutoresGuardados() {
+        List<Autor> autor = autorRepository.findAll();
+
+        if (autor.isEmpty()) {
+            System.out.println("Aún no se ha registrado ningún autor.");
+        }
+
+        autor.stream()
+                .sorted((a1, a2) -> a1.getNombre().compareToIgnoreCase(a2.getNombre()))
                 .forEach(System.out::println);
     }
 }
