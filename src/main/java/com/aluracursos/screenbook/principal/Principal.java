@@ -1,23 +1,28 @@
 package com.aluracursos.screenbook.principal;
 
+import com.aluracursos.screenbook.dto.Datos;
+import com.aluracursos.screenbook.dto.DatosAutor;
+import com.aluracursos.screenbook.dto.DatosLibro;
 import com.aluracursos.screenbook.model.*;
 import com.aluracursos.screenbook.repository.AutorRepository;
 import com.aluracursos.screenbook.repository.LibroRepository;
 import com.aluracursos.screenbook.service.ConsumoAPI;
 import com.aluracursos.screenbook.service.ConvierteDatos;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 public class Principal {
     Scanner teclado = new Scanner(System.in);
+    @Autowired
+    private LibroRepository libroRepository;
+    @Autowired
+    private AutorRepository autorRepository;
     private static final String URL_BASE = "https://gutendex.com/books/";
     private ConsumoAPI consumoAPI = new ConsumoAPI();
     private ConvierteDatos conversor = new ConvierteDatos();
-    private LibroRepository libroRepository;
-    private AutorRepository autorRepository;
     private String json;
 
     public Principal(LibroRepository libroRepository, AutorRepository autorRepository) {
@@ -32,27 +37,31 @@ public class Principal {
             var menu = """
                 --------------------
                 
-                1 - Buscar libro.
-                2 - Ver los libros buscados.
-                3 - Buscar libros por Autor.
+                1 - Buscar  por título.
+                2 - Ver los libros registrados.
+                3 - Ver los autores registrados.
+                4 - Ver los autores vivos en un determinado año.
+                5 - Ver libros por idioma.
                 
                 0 - Salir.
                 
                 --------------------
                 """;
+            json = consumoAPI.obtenerDatos(URL_BASE);
             System.out.println(menu);
             opcion = teclado.nextInt();
             teclado.nextLine();
 
             switch (opcion) {
                 case 1:
-                    buscarLibroWeb();
+                    buscarLibroPorTitulo();
                     break;
                 case 2:
                     buscarLibrosGuardados();
                     break;
                 case 3:
-                    buscarLibrosPorAutor();
+                    
+                    break;
                 case 0:
                     System.out.println("Gracias por visitar ScreenBook.");
                     System.out.println("Cerrando aplicación...");
@@ -63,109 +72,59 @@ public class Principal {
         }
     }
 
-    private Datos obtenerDatos (String url) {
-        json = consumoAPI.obtenerDatos(url);
-        System.out.println(json);
-        return conversor.obtenerDatos(json, Datos.class);
-    }
-
-    private DatosLibros getDatosLibros () {
-        System.out.println("Escribe el nombre del Libro que quieres buscar: ");
+    private DatosLibro getDatosLibros () {
+        System.out.println("Escribe el título del Libro que quieres buscar: ");
         var nombreLibro = teclado.nextLine();
-        json = consumoAPI.obtenerDatos(URL_BASE + "?search=" + nombreLibro.toLowerCase().replace(" ", "%20"));
-        Datos datos = conversor.obtenerDatos(json, Datos.class);
+        json = consumoAPI.obtenerDatos(URL_BASE +
+                "?search=" +
+                nombreLibro.toLowerCase().replace(" ", "%20"));
+        Datos datosBuscados = conversor.obtenerDatos(json, Datos.class);
 
-        if (datos.resultados().isEmpty()) {
-            System.out.println("El libro que intentas buscar, no se encuentra disponible");
+        Optional<DatosLibro> libroBuscado = datosBuscados.resultados().stream()
+                .filter(libro -> libro.titulo().toUpperCase().contains(nombreLibro.toUpperCase()))
+                .findFirst();
+
+        if (libroBuscado.isPresent()) {
+            return libroBuscado.get();
+        } else {
             return null;
         }
-
-        return datos.resultados().get(0);
     }
 
-    private void buscarLibroWeb() {
-        DatosLibros datos = getDatosLibros();
-        if (datos == null) {
-            return;
-        }
-        Optional<Libro> libro = libroRepository.findByTituloContainsIgnoreCase(datos.titulo());
+    private void buscarLibroPorTitulo() {
+        DatosLibro datosLibros = getDatosLibros();
 
-        if (libro.isPresent()) {
-            System.out.println(datos.titulo() + " ya se encuentra registrado.");
-            System.out.println(libro.get());
-        } else {
-            Autor autorDeLibro = null;
-            if (autorDeLibro != null && datos.autor().isEmpty()) {
-                DatosAutor datosAutor = datos.autor().get(0);
-
-                Optional<Autor> autor = autorRepository.findByNombreContainsIgnoreCase(datosAutor.nombre());
-
-                if (autor.isPresent()) {
-                    autorDeLibro = autor.get();
-                } else {
-                    autorDeLibro = new Autor(datosAutor);
-                    autorRepository.save(autorDeLibro);
-                }
+        if (datosLibros != null) {
+            Libro libro;
+            DatosAutor datosAutor = datosLibros.autor().get(0);
+            Autor autorGuardado = autorRepository.findByNombre(datosAutor.nombre());
+            if (autorGuardado != null) {
+                libro = new Libro(datosLibros, autorGuardado);
             } else {
-                System.out.println("No se encontro ninguna información del autor de el libroGuardado que buscaste");
+                Autor nuevoAutor = new Autor(datosAutor);
+                libro = new Libro(datosLibros, nuevoAutor);
+                autorRepository.save(nuevoAutor);
             }
-
-            Libro libroGuardado = new Libro(datos);
-            if (autorDeLibro != null) {
-                libroGuardado.setAutor(autorDeLibro);
-                autorDeLibro.agregarLibro(libroGuardado);
+            try {
+                libroRepository.save(libro);
+                System.out.println(libro);
+            } catch (Exception e) {
+                System.out.println("No se puede registrar el mismo libro dos veces.");
             }
-//
-            libroRepository.save(libroGuardado);
-            System.out.println("El libroGuardado " + datos.titulo() + " ha sido guardado.");
-            System.out.println(libroGuardado);
+        } else {
+            System.out.println("Libro no encontrado.");
         }
     }
 
     private void buscarLibrosGuardados() {
-        List<Libro> libro = libroRepository.findAll();
+        List<Libro> libro = libroRepository.findAllWithAutor();
 
         if (libro.isEmpty()) {
             System.out.println("Aún no se ha guardado ningún libro en la base de datos.");
         }
 
         libro.stream()
+                .sorted((l1, l2) -> l1.getAutor().getNombre().compareToIgnoreCase(l2.getAutor().getNombre()))
                 .forEach(System.out::println);
-    }
-
-    private void buscarLibrosPorAutor() {
-        System.out.println("Escribe el nombre del autor del que quieres ver los libros");
-        var nombreAutor = teclado.nextLine();
-        json = consumoAPI.obtenerDatos(URL_BASE + "?search=" + nombreAutor.toLowerCase().replace(" ", "%20"));
-        Datos datosAutor = conversor.obtenerDatos(json, Datos.class);
-
-        if (datosAutor.resultados().isEmpty()) {
-            System.out.println("No se encontraron libros para el autor que quieres buscar.");
-            return;
-        }
-
-        System.out.println("------ Libros encontrados de " + nombreAutor + " ------");
-        List<DatosLibros> librosDelAutor = datosAutor.resultados().stream()
-                .filter(dl -> dl.autor() != null && !dl.autor().isEmpty() && dl.autor().stream().
-                        anyMatch(da -> da.nombre().toLowerCase().contains(nombreAutor.toLowerCase())))
-                .collect(Collectors.toList());
-
-        if (librosDelAutor.isEmpty()) {
-            System.out.println("No se encontraron libros que coincidan con el autor que intentas buscar.");
-            return;
-        }
-
-        for (DatosLibros datosLibros : librosDelAutor) {
-                Libro mostrarLibro = new Libro();
-
-                //Solo se crea un obejto Autor para la visualización del toString no para guardar en este metodo.
-                if (datosLibros.autor() != null && datosLibros.autor().isEmpty()) {
-                    Autor autorTemporal = new Autor(datosLibros.autor().get(0));
-                    mostrarLibro.setAutor(autorTemporal);
-                }
-
-            System.out.println(mostrarLibro);
-        }
-        System.out.println("----------------------------------------------\n");
     }
 }

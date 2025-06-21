@@ -1,4 +1,4 @@
-package com.aluracursos.screenbook.model;
+package com.aluracursos.screenbook.dto;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

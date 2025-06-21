@@ -1,5 +1,6 @@
 package com.aluracursos.screenbook.model;
 
+import com.aluracursos.screenbook.dto.DatosLibro;
 import jakarta.persistence.*;
 
 @Entity
@@ -16,20 +17,12 @@ public class Libro {
     private String idiomas;
     private Double descargas;
 
-    public Libro(){}
+    public Libro (){}
 
-    public Libro (DatosLibros datosLibros) {
+    public Libro (DatosLibro datosLibros, Autor autor) {
         this.titulo = datosLibros.titulo();
-//        if (datosLibros.autor() != null && !datosLibros.autor().isEmpty()) {
-//            this.autor = datosLibros.autor().get(0).nombre();
-//        } else {
-//            this.autor = "Autor desconocido.";
-//        }
-        if (datosLibros.idiomas() != null && !datosLibros.idiomas().isEmpty()) {
-            this.idiomas = datosLibros.idiomas().get(0);
-        } else {
-            this.idiomas = "No se encontró en qué idiomas está disponible este libro.";
-        }
+        this.autor = autor;
+        this.idiomas = datosLibros.idiomas().get(0);
         this.descargas = datosLibros.descargas();
     }
 
@@ -44,14 +37,8 @@ public class Libro {
                 Autor: %s
                 Idioma: %s
                 Descargas: %.0f
-                -------------------
-                """.formatted(titulo, autor, idiomas, descargas) + "\n";
-
-//                + "------ LIBRO ------" + "\n" +
-//                "Titulo: " + titulo + '\n' +
-//                "Autor: " + autor + '\n' +
-//                "Idioma: " + idiomas + '\n' +
-//                "Descargas: " + descargas;
+                ------------------
+                """.formatted(titulo, nombreAutor, idiomas, descargas);
     }
 
     public Long getId() {

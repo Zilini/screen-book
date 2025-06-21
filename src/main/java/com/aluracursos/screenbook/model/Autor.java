@@ -1,5 +1,6 @@
 package com.aluracursos.screenbook.model;
 
+import com.aluracursos.screenbook.dto.DatosAutor;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -23,13 +24,13 @@ public class Autor {
 
     public Autor (DatosAutor datosAutor) {
         this.nombre = datosAutor.nombre();
-        if (datosAutor.fechaNacimiento() == null) {
+        if (datosAutor.fechaNacimiento() == null || datosAutor.fechaNacimiento().isEmpty()) {
             this.fechaNacimiento = "Desconocida";
         } else {
             this.fechaNacimiento = datosAutor.fechaNacimiento();
         }
 
-        if (datosAutor.fechaMuerte() == null) {
+        if (datosAutor.fechaMuerte() == null || datosAutor.fechaMuerte().isEmpty()) {
             this.fechaMuerte = "Desconocida";
         } else {
             this.fechaMuerte = datosAutor.fechaMuerte();
@@ -84,8 +85,8 @@ public class Autor {
     @Override
     public String toString() {
         return """
-                Autor: %s
-                Fecha de Nacimiento: %s
+                ------ %s ------
+                Fecha de nacimiento: %s
                 Fecha de Fallecimiento: %s
                 """.formatted(nombre, fechaNacimiento, fechaMuerte);
     }
