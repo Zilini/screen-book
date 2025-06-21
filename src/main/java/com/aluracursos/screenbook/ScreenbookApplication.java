@@ -1,4 +1,4 @@
-package com.aluracursos.screenbook;
+package com.aluracursos.screenboo1k;
 
 import com.aluracursos.screenbook.principal.Principal;
 import com.aluracursos.screenbook.repository.AutorRepository;

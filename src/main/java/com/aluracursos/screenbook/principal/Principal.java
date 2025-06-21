@@ -158,6 +158,33 @@ public class Principal {
     }
 
     private void buscarLibrosPorIdioma() {
-        
+        System.out.println("""
+                Ingresa el idoma de los libros que quieres buscar:
+                es -> Español
+                en -> Inglés
+                pt -> Portugués
+                fr -> Francés
+                """);
+        var idioma = teclado.nextLine().toLowerCase();
+        List<Libro> librosPorIdioma = libroRepository.findByIdiomas(idioma);
+        String idiomaMostrado = null;
+
+        if (idioma.equalsIgnoreCase("es")) {
+            idiomaMostrado = "Español";
+        } else if (idioma.equalsIgnoreCase("en")) {
+            idiomaMostrado = "Inglés";
+        } else if (idioma.equalsIgnoreCase("pt")) {
+            idiomaMostrado = "Portugués";
+        } else if (idioma.equalsIgnoreCase("fr")) {
+            idiomaMostrado = "Francés";
+        }
+
+        if (librosPorIdioma.isEmpty()) {
+            System.out.println("No se encontraron libros en %s".formatted(idiomaMostrado));
+        } else {
+            System.out.println("------ Libros en %s ------".formatted(idiomaMostrado));
+            librosPorIdioma.forEach(System.out::println);
+            System.out.println("----------------------------------------\n");
+        }
     }
 }
