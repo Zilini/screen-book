@@ -16,4 +16,7 @@ public interface LibroRepository extends JpaRepository<Libro, Long> {
     //Busca por el libro por título y carga el autor del mismo.
     @Query("SELECT l FROM Libro l JOIN FETCH l.autor WHERE l.titulo LIKE %:titulo%")
     List<Libro> findByTituloContainsIgnoreCase(String titulo);
+
+    @Query("SELECT l FROM Libro l WHERE l.idiomas = :idioma")
+    List<Libro> findByIdiomas(String idioma);
 }

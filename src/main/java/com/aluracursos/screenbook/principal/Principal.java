@@ -62,6 +62,8 @@ public class Principal {
                 case 3:
                     buscarAutoresGuardados();
                     break;
+                case 4:
+                    buscarAutoresVivosEnAnho();
                 case 0:
                     System.out.println("Gracias por visitar ScreenBook.");
                     System.out.println("Cerrando aplicación...");
@@ -138,5 +140,18 @@ public class Principal {
         autor.stream()
                 .sorted((a1, a2) -> a1.getNombre().compareToIgnoreCase(a2.getNombre()))
                 .forEach(System.out::println);
+    }
+
+    private void buscarAutoresVivosEnAnho() {
+        System.out.println("Ingresa el año para ver los autores vivos: ");
+        var anho = teclado.nextLine();
+        List<Autor> autoresVivos = autorRepository.findAutoresVivosEnAnio(anho);
+        if (autoresVivos.isEmpty()) {
+            System.out.println("No se encontro ningún autor vivo para el año %s.".formatted(anho));
+        } else {
+            System.out.println("Autores que vivieron en el año %s.".formatted(anho));
+            autoresVivos.forEach(System.out::println);
+            System.out.println("----------------------------------------\n");
+        }
     }
 }
