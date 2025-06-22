@@ -64,8 +64,10 @@ public class Principal {
                     break;
                 case 4:
                     buscarAutoresVivosEnAnho();
+                    break:
                 case 5:
                     buscarLibrosPorIdioma();
+                    break;
                 case 0:
                     System.out.println("Gracias por visitar ScreenBook.");
                     System.out.println("Cerrando aplicación...");
